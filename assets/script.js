@@ -1,20 +1,14 @@
-let myLibrary = [];
 
-addBookToLibrary('The Lord of the Rings', 'J.R.R. Tolkien', 40000, true);
-addBookToLibrary('For Whom the Bell Tolls','Ernest Hemingway', 12, false);
-addBookToLibrary('A River Runs Through It','Norman Maclean', 200, true);
-
-render();
 
 function appendChildren(element, children){
     children.forEach(child => element.appendChild(child));
 }
 
 function Book(title, author, pages, read) {
-    this.title
-    this.author
-    this.pages
-    this.read
+    this.title = title;
+    this.author = author;
+    this.pages = pages;
+    this.read = read;
     this.info = function(){
         if (this.read) {
             const read = 'has been read'
@@ -25,18 +19,20 @@ function Book(title, author, pages, read) {
     }
 }
 
-function addBookToLibrary(title, author, pages, read) {
-    book = new Book()
-    book.title = title;
-    book.author = author;
-    book.pages = pages;
-    book.read = read;
-    myLibrary.push(book);
+Book.prototype.update = function (title, author, pages, read) {
+    this.title = title;
+    this.author = author;
+    this.pages = pages;
+    this.read = read;
+
+    display.render();
 }
 
-function removeBookFromLibrary(index) {
+
+function removeFromLibrary(index) {
     myLibrary.splice(index, 1);
-    render();
+    
+    display.render();
 }
 
 function toggleReadStatus(index) {
@@ -46,20 +42,25 @@ function toggleReadStatus(index) {
         myLibrary[index].read = true;
     }
 
-    render();
+    display.render();
 }
 
-function render() {
-    const body = document.querySelector('body');
-    body.innerHTML = '';
+function Display(){
+    this.node;
+    this.library;
+}
+
+Display.prototype.render = function () {
+    node = this.node;
+    node.innerHTML = '';
 
     const new_book_button = document.createElement('button');
     new_book_button.textContent = 'NEW BOOK'
     new_book_button.addEventListener('click', e => console.log(e));
 
-    body.appendChild(new_book_button);
+    this.node.appendChild(new_book_button);
     
-    myLibrary.forEach(function(e, index){
+    this.library.forEach(function(e, index){
         div = document.createElement('div');
         div.id = `${index}`;
         div.className = 'card'
@@ -70,7 +71,7 @@ function render() {
 
         const remove_button = document.createElement('button');
         remove_button.textContent = 'REMOVE';
-        remove_button.addEventListener('click', e => removeBookFromLibrary(e.target.parentNode.id));
+        remove_button.addEventListener('click', e => removeFromLibrary(e.target.parentNode.id));
 
         const span = document.createElement('span');
 
@@ -78,6 +79,19 @@ function render() {
         span.textContent = `Title: ${e.title}, Author: ${e.author}, Pages: ${e.pages}, ${read}`;
 
         appendChildren(div, [read_button, remove_button, span]);
-        body.appendChild(div);
+        node.appendChild(div);
     })
 }
+
+
+let myLibrary = [];
+
+myLibrary.push(new Book('The Lord of the Rings', 'J.R.R. Tolkien', 40000, true));
+myLibrary.push(new Book('For Whom the Bell Tolls','Ernest Hemingway', 12, false));
+myLibrary.push(new Book('A River Runs Through It','Norman Maclean', 200, true));
+
+display = new Display;
+display.node = document.querySelector('body');
+display.library = myLibrary;
+display.render();
+
