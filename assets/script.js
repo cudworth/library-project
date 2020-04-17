@@ -2,9 +2,9 @@ let myLibrary = [];
 
 addBookToLibrary('The Lord of the Rings', 'J.R.R. Tolkien', 40000, true);
 addBookToLibrary('For Whom the Bell Tolls','Ernest Hemingway', 12, false);
-addBookToLibrary('A River Runs Through It','Norman Maclean', 200, true)
+addBookToLibrary('A River Runs Through It','Norman Maclean', 200, true);
 
-render()
+render();
 
 function appendChildren(element, children){
     children.forEach(child => element.appendChild(child));
@@ -39,6 +39,16 @@ function removeBookFromLibrary(index) {
     render();
 }
 
+function toggleReadStatus(index) {
+    if (myLibrary[index].read){
+        myLibrary[index].read = false;
+    } else {
+        myLibrary[index].read = true;
+    }
+
+    render();
+}
+
 function render() {
     const body = document.querySelector('body');
     body.innerHTML = '';
@@ -56,14 +66,16 @@ function render() {
 
         const read_button = document.createElement('button')
         read_button.textContent = 'READ/UNREAD';
-        read_button.addEventListener('click', e => console.log('read btn pressed'));
+        read_button.addEventListener('click', e => toggleReadStatus(e.target.parentNode.id));
 
         const remove_button = document.createElement('button');
         remove_button.textContent = 'REMOVE';
         remove_button.addEventListener('click', e => removeBookFromLibrary(e.target.parentNode.id));
 
-        const span = document.createElement('span')
-        span.textContent = `Title: ${e.title}, Author: ${e.author}, Pages: ${e.pages}`;
+        const span = document.createElement('span');
+
+        (e.read)? read = 'Read' : read = 'Not Read';
+        span.textContent = `Title: ${e.title}, Author: ${e.author}, Pages: ${e.pages}, ${read}`;
 
         appendChildren(div, [read_button, remove_button, span]);
         body.appendChild(div);
