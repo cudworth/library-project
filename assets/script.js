@@ -56,7 +56,7 @@ Display.prototype.render = function () {
 
     const new_book_button = document.createElement('button');
     new_book_button.textContent = 'NEW BOOK'
-    new_book_button.addEventListener('click', e => console.log(e));
+    new_book_button.addEventListener('click', e => form.render());
 
     this.node.appendChild(new_book_button);
     
@@ -84,14 +84,62 @@ Display.prototype.render = function () {
 }
 
 
+function Form(){
+    this.node;
+
+}
+
+Form.prototype.render = function(){
+    node = this.node;
+    node.innerHTML = '';
+
+    const fields = {
+        title: 'text',
+        author: 'text',
+        pages: 'text',
+        read: 'checkbox'
+    };
+
+    Object.keys(fields).forEach(function(key) {
+
+        const div = document.createElement('div');
+        node.appendChild(div);
+
+        const label = document.createElement('label');
+        div.appendChild(label);
+
+        const input = document.createElement('input');
+        div.appendChild(input);
+
+        label.textContent = `${key}: `;
+        label.setAttribute('for', key);
+
+        input.name = key;
+        input.type = fields[key];
+    });
+
+    const submit_button = document.createElement('button');
+    submit_button.textContent = 'SUBMIT';
+    node.appendChild(submit_button);
+    
+}
+
 let myLibrary = [];
 
 myLibrary.push(new Book('The Lord of the Rings', 'J.R.R. Tolkien', 40000, true));
 myLibrary.push(new Book('For Whom the Bell Tolls','Ernest Hemingway', 12, false));
 myLibrary.push(new Book('A River Runs Through It','Norman Maclean', 200, true));
 
-display = new Display;
-display.node = document.querySelector('body');
-display.library = myLibrary;
-display.render();
 
+form = new Form;
+form.node = document.createElement('form');
+display = new Display;
+display.node = document.createElement('div');
+
+const body = document.querySelector('body')
+body.appendChild(form.node);
+body.appendChild(display.node);
+
+display.library = myLibrary;
+
+display.render();
