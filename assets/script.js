@@ -1,118 +1,113 @@
-
-
-function appendChildren(element, children){
-    children.forEach(child => element.appendChild(child));
-}
-
-function Book() {
+function Book(){
     this.title;
     this.author;
     this.pages;
-    this.read
-    ;
-    this.info = function(){
-        if (this.read) {
-            const read = 'has been read'
-        } else {
-            const read = 'not yet read'
-        }
-        return `${this.title} by ${this.author}, ${this.pages} pages, ${read}`
+    this.read;
+
+    this.fields = {title: 'text',
+                    author: 'text',
+                    pages: 'text',
+                    read: 'checkbox'};
+    
+    this.set = function(title, author, pages, read){
+        this.title = title;
+        this.author = author;
+        this.pages = pages;
+        this.read = read;
     }
 }
 
-Book.prototype.update = function (title, author, pages, read) {
-    this.title = title;
-    this.author = author;
-    this.pages = pages;
-    this.read = read;
 
+Book.prototype.render = function(parent, display){   
+    const read_btn = document.createElement('button')
+    read_btn.textContent = 'TOGGLE READ/UNREAD';
+    read_btn.addEventListener('click', e => this.toggleRead(display));
+
+    const span = document.createElement('span');
+
+    span.textContent = `Title: ${this.title}, Author: ${this.author}, Pages: ${this.pages}, Read: ${this.read}`;
+
+    parent.append(read_btn, span);
 }
 
-function removeFromLibrary(index) {
-    myLibrary.splice(index, 1);
-    
+Book.prototype.toggleRead = function(display){
+    (this.read)? this.read = false : this.read = true;
     display.render();
 }
 
-function toggleReadStatus(index) {
-    if (myLibrary[index].read){
-        myLibrary[index].read = false;
-    } else {
-        myLibrary[index].read = true;
+
+function Library(){
+    this.parent;
+    this.form = document.createElement('form');
+    this.display = document.createElement('div');
+    this.booklist = [];
+
+    this.setParent = function(parent){
+        this.parent = parent;
+        this.parent.append(this.form, this.display);
+        this.render();
     }
 
-    display.render();
+    //DEMO BOOKS FOR TESTING
+    const book1 = new Book();
+    const book2 = new Book();
+    const book3 = new Book();
+    book1.set('The Lord of the Rings', 'J.R.R. Tolkien', 40000, true);
+    book2.set('For Whom the Bell Tolls','Ernest Hemingway', 12, false);
+    book3.set('Hary Potter Half Blood Prince', 'J.K. Rowling', 820, true);
+    this.booklist.push(book1, book2, book3);
+
 }
 
-function Display(){
-    this.node = document.createElement('div');
-    this.library;
-}
-
-Display.prototype.render = function () {
-    node = this.node;
-    node.innerHTML = '';
-
-    const new_book_button = document.createElement('button');
-    new_book_button.textContent = 'NEW BOOK'
-    new_book_button.addEventListener('click', e => form.render());
-
-    node.appendChild(new_book_button);
+Library.prototype.render = function(){
+    library = this;
+    form = this.form;
+    display = this.display;
     
-    this.library.forEach(function(e, index){
-        div = document.createElement('div');
-        div.id = `${index}`;
-        div.className = 'card'
-
-        const read_button = document.createElement('button')
-        read_button.textContent = 'READ/UNREAD';
-        read_button.addEventListener('click', e => toggleReadStatus(e.target.parentNode.id));
-
-        const remove_button = document.createElement('button');
-        remove_button.textContent = 'REMOVE';
-        remove_button.addEventListener('click', e => removeFromLibrary(e.target.parentNode.id));
-
-        const span = document.createElement('span');
-
-        (e.read)? read = 'Read' : read = 'Not Read';
-        span.textContent = `Title: ${e.title}, Author: ${e.author}, Pages: ${e.pages}, ${read}`;
-
-        appendChildren(div, [read_button, remove_button, span]);
-        node.appendChild(div);
-    })
-}
-
-
-function Form(){
-    this.node = document.createElement('form');
-
-    this.fields = {
-        title: 'text',
-        author: 'text',
-        pages: 'text',
-        read: 'checkbox'
-    };
-}
-
-Form.prototype.render = function(){
+    form.innerHTML = '';
+    display.innerHTML = '';
     
-    const node = this.node;
-    const fields = this.fields;
-    node.innerHTML = '';
+    const new_btn = document.createElement('button');
+    new_btn.textContent = 'NEW BOOK';
+    new_btn.addEventListener('click', e => this.createForm());
+    display.append(new_btn);
+
+    this.booklist.forEach(function(book){
+
+        const div = document.createElement('div');
+        div.id = book;
+        div.className = 'card';
+        display.append(div);
+
+        const remove_btn = document.createElement('button');
+        remove_btn.textContent = 'REMOVE';
+        remove_btn.addEventListener('click', (e) => library.remove(book));
+        div.append(remove_btn);
+
+        book.render(div, library);
+    });
+};
+
+Library.prototype.createForm = function(){
+    const book = new Book(); //DUMMY BOOK TO OBTAIN FIELDS DATA
 
     const ul  = document.createElement('ul');
-    node.appendChild(ul);
 
-    Object.keys(fields).forEach(function(key) {
+    const submit_btn = document.createElement('button');
+    submit_btn.textContent = 'SUBMIT';
+    submit_btn.type = 'button';
+    submit_btn.addEventListener('click', e => this.add());
+
+    this.form.append(ul, submit_btn);
+
+    Object.keys(book.fields).forEach(function(key) {
 
         const li = document.createElement('li');
-        ul.appendChild(li);
+        ul.append(li);
 
         const label = document.createElement('label');
-        li.appendChild(label);
-
         const input = document.createElement('input');
-        li.appendChild(input);
+        li.append(label, input);
 
         const id = `form_${key}`;
 
@@ -121,55 +116,37 @@ Form.prototype.render = function(){
 
         input.id = id;
         input.name = key;
-        input.type = fields[key];
+        input.type = book.fields[key];
     });
+};
 
-    const button = document.createElement('button');
-    button.textContent = 'SUBMIT';
-    button.type = 'button';
-    button.addEventListener('click', e => this.read());
-    node.appendChild(button);
-    
+Library.prototype.remove = function(book){
+    const index = library.booklist.indexOf(book);
+    this.booklist.splice(index, 1);
+    this.render();
 }
 
-Form.prototype.read = function(){
-    const fields = this.fields;
+Library.prototype.add = function(){
+    const book = new Book;
 
-    const book = new Book();
-    myLibrary.unshift(book);
-
-    Object.keys(fields).forEach(function(key){
+    Object.keys(book.fields).forEach(function(key){
         const input = document.getElementById(`form_${key}`);
-        if (fields[key] == 'text'){
-            book[key] = input.value;
-        } else {
-            book[key] = input.checked;
-        };
+        switch (book.fields[key]){
+            case 'text':
+                book[key] = input.value;
+                break;
+            case 'checkbox':
+                book[key] = input.checked;
+                break;
+        }
     });
-    
-    this.node.innerHTML = '';
-    display.render();
+
+    this.booklist.unshift(book);
+    this.render();
 }
 
 
-let myLibrary = [];
 
-const book1 = new Book();
-const book2 = new Book();
-book1.update('The Lord of the Rings', 'J.R.R. Tolkien', 40000, true);
-book2.update('For Whom the Bell Tolls','Ernest Hemingway', 12, false);
-myLibrary.push(book1);
-myLibrary.push(book2);
+const myLibrary = new Library();
 
-console.log(myLibrary);
-
-form = new Form;
-display = new Display;
-
-const body = document.querySelector('body')
-
-body.appendChild(form.node);
-body.appendChild(display.node);
-
-display.library = myLibrary;
-display.render();
+myLibrary.setParent(document.querySelector('body'));
