@@ -1,14 +1,8 @@
 function Book(){
-    this.title;
-    this.author;
-    this.pages;
-    this.read;
-
     this.fields = {title: 'text',
                     author: 'text',
                     pages: 'text',
                     read: 'checkbox'};
-    
     this.set = function(title, author, pages, read){
         this.title = title;
         this.author = author;
@@ -18,17 +12,17 @@ function Book(){
 }
 
 
-Book.prototype.render = function(parent, display){   
-    const read_btn = document.createElement('button')
-    read_btn.textContent = 'TOGGLE READ/UNREAD';
-    read_btn.addEventListener('click', e => this.toggleRead(display));
+Book.prototype.render = function(parent_node, display){   
+    const toggle_btn = document.createElement('button')
+    toggle_btn.textContent = 'TOGGLE READ';
+    toggle_btn.addEventListener('click', () => this.toggleRead(display));
 
     const span = document.createElement('span');
-
     span.textContent = `Title: ${this.title}, Author: ${this.author}, Pages: ${this.pages}, Read: ${this.read}`;
 
-    parent.append(read_btn, span);
+    parent_node.append(toggle_btn, span);
 }
+
 
 Book.prototype.toggleRead = function(display){
     (this.read)? this.read = false : this.read = true;
@@ -37,15 +31,12 @@ Book.prototype.toggleRead = function(display){
 
 
 function Library(){
-    this.parent;
     this.form = document.createElement('form');
     this.display = document.createElement('div');
     this.booklist = [];
-
-    this.setParent = function(parent){
-        this.parent = parent;
-        this.parent.append(this.form, this.display);
-        this.render();
+    this.setParentNode = function(parent_node){
+        this.parent_node = parent_node;
+        this.parent_node.append(this.form, this.display);
     }
 
     //DEMO BOOKS FOR TESTING
@@ -56,21 +47,19 @@ function Library(){
     book2.set('For Whom the Bell Tolls','Ernest Hemingway', 12, false);
     book3.set('Hary Potter Half Blood Prince', 'J.K. Rowling', 820, true);
     this.booklist.push(book1, book2, book3);
-
 }
 
 Library.prototype.render = function(){
-    library = this;
-    form = this.form;
-    display = this.display;
+    const library = this;
+    const display = this.display;
     
-    form.innerHTML = '';
-    display.innerHTML = '';
+    this.form.innerHTML = '';
+    this.display.innerHTML = '';
     
     const new_btn = document.createElement('button');
     new_btn.textContent = 'NEW BOOK';
-    new_btn.addEventListener('click', e => this.createForm());
-    display.append(new_btn);
+    new_btn.addEventListener('click', () => this.createForm());
+    this.display.append(new_btn);
 
     this.booklist.forEach(function(book){
 
@@ -81,14 +70,17 @@ Library.prototype.render = function(){
 
         const remove_btn = document.createElement('button');
         remove_btn.textContent = 'REMOVE';
-        remove_btn.addEventListener('click', (e) => library.remove(book));
+        remove_btn.addEventListener('click', () => library.remove(book));
         div.append(remove_btn);
 
         book.render(div, library);
     });
 };
 
+
 Library.prototype.createForm = function(){
+    this.form.innerHTML = '';
+    
     const book = new Book(); //DUMMY BOOK TO OBTAIN FIELDS DATA
 
     const ul  = document.createElement('ul');
@@ -101,7 +93,6 @@ Library.prototype.createForm = function(){
     this.form.append(ul, submit_btn);
 
     Object.keys(book.fields).forEach(function(key) {
-
         const li = document.createElement('li');
         ul.append(li);
 
@@ -120,11 +111,13 @@ Library.prototype.createForm = function(){
     });
 };
 
+
 Library.prototype.remove = function(book){
-    const index = library.booklist.indexOf(book);
+    const index = this.booklist.indexOf(book);
     this.booklist.splice(index, 1);
     this.render();
 }
+
 
 Library.prototype.add = function(){
     const book = new Book;
@@ -146,7 +139,8 @@ Library.prototype.add = function(){
 }
 
 
-
 const myLibrary = new Library();
 
-myLibrary.setParent(document.querySelector('body'));
+myLibrary.setParentNode(document.querySelector('body'));
+
+myLibrary.render();
