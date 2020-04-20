@@ -31,12 +31,12 @@ Book.prototype.toggleRead = function(display){
 
 
 function Library(){
-    this.form = document.createElement('form');
+    //this.form = document.createElement('form');
     this.display = document.createElement('div');
     this.booklist = [];
     this.setParentNode = function(parent_node){
         this.parent_node = parent_node;
-        this.parent_node.append(this.form, this.display);
+        this.parent_node.append(this.display);
     }
 
     //DEMO BOOKS FOR TESTING
@@ -53,7 +53,7 @@ Library.prototype.render = function(){
     const library = this;
     const display = this.display;
     
-    this.form.innerHTML = '';
+    //this.form.innerHTML = '';
     this.display.innerHTML = '';
     
     const new_btn = document.createElement('button');
@@ -79,7 +79,9 @@ Library.prototype.render = function(){
 
 
 Library.prototype.createForm = function(){
-    this.form.innerHTML = '';
+    if(this.form){this.form.remove();};
+    this.form = document.createElement('form');
+    this.parent_node.insertBefore(this.form, this.display);
     
     const book = new Book(); //DUMMY BOOK TO OBTAIN FIELDS DATA
 
@@ -134,6 +136,7 @@ Library.prototype.add = function(){
         }
     });
 
+    this.form.remove();
     this.booklist.unshift(book);
     this.render();
 }
