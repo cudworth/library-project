@@ -27,33 +27,24 @@ Book.prototype.render = function(parent_node, display){
 Book.prototype.toggleRead = function(display){
     (this.read)? this.read = false : this.read = true;
     display.render();
+
+    localStorage.setItem('library', JSON.stringify(myLibrary));
 }
 
 
 function Library(){
-    //this.form = document.createElement('form');
     this.display = document.createElement('div');
     this.booklist = [];
     this.setParentNode = function(parent_node){
         this.parent_node = parent_node;
         this.parent_node.append(this.display);
     }
-
-    //DEMO BOOKS FOR TESTING
-    const book1 = new Book();
-    const book2 = new Book();
-    const book3 = new Book();
-    book1.set('The Lord of the Rings', 'J.R.R. Tolkien', 40000, true);
-    book2.set('For Whom the Bell Tolls','Ernest Hemingway', 12, false);
-    book3.set('Hary Potter Half Blood Prince', 'J.K. Rowling', 820, true);
-    this.booklist.push(book1, book2, book3);
 }
 
 Library.prototype.render = function(){
     const library = this;
     const display = this.display;
     
-    //this.form.innerHTML = '';
     this.display.innerHTML = '';
     
     const new_btn = document.createElement('button');
@@ -118,6 +109,8 @@ Library.prototype.remove = function(book){
     const index = this.booklist.indexOf(book);
     this.booklist.splice(index, 1);
     this.render();
+
+    localStorage.setItem('library', JSON.stringify(myLibrary));
 }
 
 
@@ -139,11 +132,32 @@ Library.prototype.add = function(){
     this.form.remove();
     this.booklist.unshift(book);
     this.render();
+
+    localStorage.setItem('library', JSON.stringify(myLibrary));
 }
 
 
-const myLibrary = new Library();
+function importLibrary () {
+    const new_library = new Library();
+    const library = JSON.parse(localStorage.getItem('library'));
+    library.booklist.forEach(function(book){
+        const new_book = new Book();
+        new_book.set(book.title, book.author, book.pages, book.read);
+        new_library.booklist.push(new_book);
+    })
+    return new_library;
+}
 
-myLibrary.setParentNode(document.querySelector('body'));
 
-myLibrary.render();
+
+let myLibrary;
+
+if (localStorage.getItem('library')) {
+    myLibrary = importLibrary();
+    myLibrary.setParentNode(document.querySelector('body'));
+    myLibrary.render();
+} else {
+    myLibrary = new Library();
+    myLibrary.setParentNode(document.querySelector('body'));
+    myLibrary.render();
+}
